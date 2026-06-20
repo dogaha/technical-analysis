@@ -17,13 +17,3 @@ CREATE TABLE IF NOT EXISTS bronze.es_bars (
     source_file   TEXT NOT NULL,
     loaded_at     TIMESTAMP NOT NULL DEFAULT now()
 );
- 
--- Tracks which files have already been ingested, so Airflow doesn't reload them
-CREATE TABLE IF NOT EXISTS bronze.ingested_files (
-    id           BIGSERIAL PRIMARY KEY,
-    file_name    TEXT NOT NULL UNIQUE,
-    ingested_at  TIMESTAMP NOT NULL DEFAULT now(),
-    row_count    INTEGER
-);
-
---Silver 
