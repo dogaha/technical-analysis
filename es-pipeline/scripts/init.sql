@@ -17,3 +17,4 @@ CREATE TABLE IF NOT EXISTS bronze.es_bars (
     source_file   TEXT NOT NULL,
     loaded_at     TIMESTAMP NOT NULL DEFAULT now()
 );
+
