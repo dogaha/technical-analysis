@@ -1,7 +1,7 @@
 .env
-data
-logs
+data/*
+logs/*
+*.log
+__pycache__/
 !data/.gitkeep
 !logs/.gitkeep
-*.log
-__pycache__
