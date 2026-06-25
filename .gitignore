@@ -1,5 +1,7 @@
 .env
 data
 logs
+!data/.gitkeep
+!logs/.gitkeep
 *.log
 __pycache__
