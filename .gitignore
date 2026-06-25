@@ -1,6 +1,0 @@
-.env
-es-pipeline/data/landing/*.txt
-es-pipeline/data/archive/*.txt
-logs/*
-*.log
-__pycache__/
