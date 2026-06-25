@@ -1,7 +1,6 @@
 .env
-data/*
+es-pipeline/data/landing/*.txt
+es-pipeline/data/archive/*.txt
 logs/*
 *.log
 __pycache__/
-!data/.gitkeep
-!logs/.gitkeep

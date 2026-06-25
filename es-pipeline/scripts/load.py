@@ -17,9 +17,7 @@ import psycopg2
 import io
 import re
 import calendar
-from datetime import date, strptime  # strptime is not in datetime
-from datetime import date
-from datetime import datetime  # strptime is datetime.strptime
+from datetime import date, datetime, timedelta
 from dotenv import load_dotenv
 
 VALID_MONTHS = {
@@ -62,8 +60,13 @@ def third_friday(year, month):
     c = calendar.monthcalendar(year, month)
     fridays = [week[calendar.FRIDAY] for week in c if week[calendar.FRIDAY] != 0]
     return date(year, month, fridays[2])
+def next_trading_day(d):
+    d = d + timedelta(days=1)
+    while d.weekday() in (5, 6):  # 5=Saturday, 6=Sunday
+        d += timedelta(days=1)
+    return d
 
-def validate_daterange_quarterly(contract,min_date,max_date):
+def validate_daterange_quarterly(contract, min_date, max_date):
     match = re.match(r'^([A-Z]{1,3})([FGHJKMNQUVXZ])(\d{2})$', contract)
     root, month_code, year = match.groups()
     year = 2000 + int(year)
@@ -72,12 +75,10 @@ def validate_daterange_quarterly(contract,min_date,max_date):
 
     prior_month = exp_month - 3 if exp_month > 3 else exp_month + 9
     prior_year = year if exp_month > 3 else year - 1
-    start = third_friday(prior_year, prior_month)
+    start = third_friday(prior_year, prior_month) + timedelta(days=1)
 
     if not (min_date >= start and max_date <= expiry):
-        raise ContractDateRangeError(f"Invalid date range: must be between {start} - {expiry}")
-    
-
+        raise ContractDateRangeError(f"Invalid date range for {contract}: must be between {start} - {expiry}")
 
 load_dotenv()
 logger = logging.getLogger("es_pipeline")
@@ -104,6 +105,8 @@ cur = conn.cursor()
 
 landingPath = "/opt/airflow/data/landing"
 archivePath = "/opt/airflow/data/archive"
+
+
 for instance in os.listdir(landingPath):
     if instance.endswith(".txt"):
         instancePath = os.path.join(landingPath,instance)
@@ -123,8 +126,8 @@ for instance in os.listdir(landingPath):
                         buffer.write(line.strip()+f";{filename}\n")
                 buffer.seek(0)
 
-                bar_date_min = strptime(first_line.split(';')[0], '%Y%m%d %H%M%S').date()
-                bar_date_max = strptime(last_line.split(';')[0], '%Y%m%d %H%M%S').date()
+                bar_date_min = datetime.strptime(first_line.split(';')[0], '%Y%m%d %H%M%S').date()
+                bar_date_max = datetime.strptime(last_line.split(';')[0], '%Y%m%d %H%M%S').date()
                 validate_daterange_quarterly(filename,bar_date_min,bar_date_max)
                 
                 cur.copy_expert(
@@ -133,20 +136,20 @@ for instance in os.listdir(landingPath):
                 )
 
                 os.replace(instancePath, os.path.join(archivePath, instance))
-                
+
+                conn.commit()
                 logger.info(f"Successfully Ingested {filename}")
 
             except ContractNameError as e:
-                logger.error(f"Contract validation failed: {e}")
-                raise
+                logger.error(f"Contract validation failed for {filename}: {e}")
+                continue
             except ContractDateRangeError as e:
-                logger.error(f"Date range validation failed: {e}")
-                raise
+                logger.error(f"Date range validation failed for {filename}: {e}")
+                continue
             except Exception as e:
-                logger.error(f"Unexpected error during ingestion: {e}")
-                raise
+                logger.error(f"Unexpected error during ingestion for {filename}: {e}")
+                continue
 
-conn.commit()
 cur.close()
 conn.close()
 
