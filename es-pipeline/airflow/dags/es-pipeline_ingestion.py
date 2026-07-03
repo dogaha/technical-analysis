@@ -15,18 +15,23 @@ with DAG(
         task_id="wait_for_file",
         fs_conn_id="fs_default",
         filepath="/opt/airflow/data/landing/*.txt",
-        poke_interval=30,
-        timeout=60*5
+        poke_interval=15,
+        timeout=60*2
     )
     run_load = BashOperator(
         task_id="run_load",
         bash_command="python /opt/airflow/load.py"
     )
 
-    trigger_self = TriggerDagRunOperator(
-        task_id="trigger_self",
-        trigger_dag_id="es_pipeline_ingest",  # same DAG id
-        wait_for_completion=False
+    run_dbt_models = BashOperator(
+        task_id="run_silver_model",
+        bash_command="docker exec $(docker ps -qf 'name=dbt') dbt run --select staging silver gold"
     )
+
+    # trigger_self = TriggerDagRunOperator(
+    #     task_id="trigger_self",
+    #     trigger_dag_id="es_pipeline_ingest",  # same DAG id
+    #     wait_for_completion=False
+    # )
     
-    wait_for_file >> run_load>> trigger_self
+    wait_for_file >> run_load>> run_dbt_models 

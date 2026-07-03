@@ -1,0 +1,6 @@
+version: 2
+sources:
+  - name: futures_data
+    schema: bronze
+    tables:
+      - name: es_bars
