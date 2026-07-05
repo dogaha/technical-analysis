@@ -1,0 +1,5 @@
+jupyrerlab
+pandas
+psycopg2-binary
+matplotlib
+python-dotenv

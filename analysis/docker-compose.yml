@@ -1,0 +1,11 @@
+services:
+  jupyter:
+    build: .
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/app/notebooks
+    env_file:
+      - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
