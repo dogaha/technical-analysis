@@ -3,6 +3,10 @@ WITH filtered AS (
         contract,
         bar_date,
         bar_time,
+        (
+            '00:00:00'::TIME + 
+            EXTRACT(HOUR FROM bar_time) * INTERVAL '1 hour'
+        ) AS bar_time_bucket,
         high,
         open,
         close,
@@ -15,6 +19,7 @@ WITH filtered AS (
 SELECT
     contract as contract,
     bar_date as bar_date,
+    bar_time_bucket as bar_time,
     MAX(high) as high,
     (ARRAY_AGG(open ORDER BY bar_time ASC))[1] as open,
     (ARRAY_AGG(close ORDER BY bar_time DESC))[1] as close,
@@ -22,4 +27,4 @@ SELECT
     SUM(volume) as total_volume,
     ROUND(AVG(volume)) as average_volume
 FROM filtered
-GROUP BY contract, bar_date
+GROUP BY contract, bar_date, bar_time_bucket
