@@ -1,0 +1,17 @@
+.env
+__pycache__/
+
+es-pipeline/data/archive/*
+!es-pipeline/data/archive/.gitkeep
+
+es-pipeline/data/landing/*
+!es-pipeline/data/landing/.gitkeep
+
+logs/
+!logs/.gitkeep
+
+es-pipeline/pipeline.log
+
+target
+
+.ipynb_checkpoints
