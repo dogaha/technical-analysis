@@ -1,5 +1,6 @@
-jupyrerlab
+jupyterlab
 pandas
+sqlalchemy
 psycopg2-binary
 matplotlib
 python-dotenv
