@@ -15,7 +15,7 @@ WITH filtered AS (
         volume
     FROM {{ ref('int_es_bars') }}
     WHERE EXTRACT(ISODOW FROM bar_date) BETWEEN 1 AND 5
-      AND bar_time BETWEEN '06:00:00' AND '15:00:00'
+      AND bar_time BETWEEN '06:00:00' AND '14:59:00'
 )
 SELECT
     contract as contract,
