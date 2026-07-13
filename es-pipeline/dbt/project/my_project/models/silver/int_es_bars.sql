@@ -9,11 +9,17 @@ silver layer
     volume
     rn --this is the duplication checker
 */
+{{
+    config(
+        pre_hook="SET timezone = 'UTC';"
+    )
+}}
+
 WITH silver as (
     SELECT 
         contract,
-        (TO_TIMESTAMP(bar_timestamp,'YYYYMMDD HH24MISS') AT TIME ZONE 'UTC' AT TIME ZONE 'America/Chicago')::DATE  as bar_date,
-        (TO_TIMESTAMP(bar_timestamp,'YYYYMMDD HH24MISS') AT TIME ZONE 'UTC' AT TIME ZONE 'America/Chicago')::TIME as bar_time,
+        (TO_TIMESTAMP(bar_timestamp,'YYYYMMDD HH24MISS') AT TIME ZONE 'America/Chicago')::DATE  as bar_date,
+        (TO_TIMESTAMP(bar_timestamp,'YYYYMMDD HH24MISS') AT TIME ZONE 'America/Chicago')::TIME as bar_time,
         high::numeric,
         open::numeric,
         close::numeric,
