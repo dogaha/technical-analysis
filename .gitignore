@@ -7,11 +7,15 @@ es-pipeline/data/archive/*
 es-pipeline/data/landing/*
 !es-pipeline/data/landing/.gitkeep
 
+es-pipeline/dbt/project/my_project/target/*
+!es-pipeline/dbt/project/my_project/target/.gitkeep
+
 logs/
 !logs/.gitkeep
 
 es-pipeline/pipeline.log
 
-target
 
 .ipynb_checkpoints
+
+.Trash-0

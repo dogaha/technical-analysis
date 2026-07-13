@@ -19,11 +19,13 @@ silver layer
     volume
     rn --this is the duplication checker
 */
+
+
 WITH silver as (
     SELECT 
         contract,
-        TO_TIMESTAMP(bar_timestamp,'YYYYMMDD HH24MISS')::DATE AT TIME ZONE 'UTC' AT TIME ZONE 'America/Chicago' as bar_date,
-        TO_TIMESTAMP(bar_timestamp,'YYYYMMDD HH24MISS')::TIME AT TIME ZONE 'UTC' AT TIME ZONE 'America/Chicago' as bar_time,
+        (TO_TIMESTAMP(bar_timestamp,'YYYYMMDD HH24MISS') AT TIME ZONE 'America/Chicago')::DATE  as bar_date,
+        (TO_TIMESTAMP(bar_timestamp,'YYYYMMDD HH24MISS') AT TIME ZONE 'America/Chicago')::TIME as bar_time,
         high::numeric,
         open::numeric,
         close::numeric,
