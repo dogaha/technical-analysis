@@ -17,15 +17,18 @@ WITH filtered AS (
     WHERE EXTRACT(ISODOW FROM bar_date) BETWEEN 1 AND 5
       AND bar_time BETWEEN '08:00:00' AND '14:59:00'
 )
+
 SELECT
-    contract as contract,
-    bar_date as bar_date,
-    bar_time_bucket as bar_time,
+    f.contract as contract,
+    f.bar_date as bar_date,
+    f.bar_time_bucket as bar_time,
     MAX(high) as high,
-    (ARRAY_AGG(open ORDER BY bar_time ASC))[1] as open,
-    (ARRAY_AGG(close ORDER BY bar_time DESC))[1] as close,
-    MIN(low) as low,
-    SUM(volume) as total_volume,
-    ROUND(AVG(volume)) as average_volume
-FROM filtered
-GROUP BY contract, bar_date, bar_time_bucket
+    (ARRAY_AGG(open ORDER BY f.bar_time ASC))[1] as open,
+    (ARRAY_AGG(close ORDER BY f.bar_time DESC))[1] as close,
+    MIN(f.low) as low,
+    SUM(f.volume) as total_volume,
+    ROUND(AVG(f.volume)) as average_volume
+FROM {{ ref('stg_cme_trading_calendar') }} cme
+INNER JOIN filtered f
+    ON f.bar_date = cme.bar_date
+GROUP BY f.contract, f.bar_date, f.bar_time_bucket

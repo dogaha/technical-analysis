@@ -25,7 +25,7 @@ with DAG(
 
     run_dbt_models = BashOperator(
         task_id="run_silver_model",
-        bash_command="docker exec $(docker ps -qf 'name=dbt') dbt run --select staging silver gold"
+        bash_command="docker exec dbt_container dbt run --select staging silver gold"
     )
 
     # trigger_self = TriggerDagRunOperator(

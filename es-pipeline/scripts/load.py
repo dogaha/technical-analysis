@@ -55,31 +55,34 @@ def validate_filename(contract):
     if month not in VALID_MONTHS[root]:
         raise ContractNameError(f"Invalid month for {root}: {month}, use CME format")
 
-def third_friday(year, month):
-    # Find first Friday
-    c = calendar.monthcalendar(year, month)
-    fridays = [week[calendar.FRIDAY] for week in c if week[calendar.FRIDAY] != 0]
-    return date(year, month, fridays[2])
-def next_trading_day(d):
-    d = d + timedelta(days=1)
-    while d.weekday() in (5, 6):  # 5=Saturday, 6=Sunday
-        d += timedelta(days=1)
-    return d
+def third_monday(year, month):
+    d = date(year, month, 1) # get the first of the month
+    d += timedelta(days=(7 - d.weekday()) % 7) # get the first monday
+    return d + timedelta(weeks=2) # add two weeks to get third monday
 
-def validate_daterange_quarterly(contract, min_date, max_date):
+def validate_daterange(contract, min_date, max_date):
     match = re.match(r'^([A-Z]{1,3})([FGHJKMNQUVXZ])(\d{2})$', contract)
     root, month_code, year = match.groups()
-    year = 2000 + int(year)
     exp_month = EXPIRY_MONTH[month_code]
-    expiry = third_friday(year, exp_month)
+    year = 2000 + int(year)
 
-    prior_month = exp_month - 3 if exp_month > 3 else exp_month + 9
-    prior_year = year if exp_month > 3 else year - 1
-    start = third_friday(prior_year, prior_month) + timedelta(days=1)
+    # contract_month: 3=Mar, 6=Jun, 9=Sep, 12=Dec
+    roll_month = exp_month - 3
+    roll_year = year
+    if roll_month <= 0:
+        roll_month += 12
+        roll_year -= 1
+    start = third_monday(roll_year, roll_month)
 
-    if not (min_date >= start and max_date <= expiry):
-        raise ContractDateRangeError(f"Invalid date range for {contract}: must be between {start} - {expiry}")
-
+    next_month = exp_month
+    next_year = year
+    next_roll_month = next_month
+    next_roll_year = next_year
+    end = third_monday(next_roll_year, next_roll_month) - timedelta(days=1)
+    
+    if not (min_date >= start and max_date <= end):
+        raise ContractDateRangeError(f"Invalid date range for {contract}: must be between {start} - {end}")
+        
 load_dotenv()
 logger = logging.getLogger("es_pipeline")
 logger.setLevel(logging.INFO)
@@ -128,7 +131,11 @@ for instance in os.listdir(landingPath):
 
                 bar_date_min = datetime.strptime(first_line.split(';')[0], '%Y%m%d %H%M%S').date()
                 bar_date_max = datetime.strptime(last_line.split(';')[0], '%Y%m%d %H%M%S').date()
-                validate_daterange_quarterly(filename,bar_date_min,bar_date_max)
+                match = re.match(r'^([A-Z]{1,3})([FGHJKMNQUVXZ])(\d{2})$', contract)
+                root, month_code, year = match.groups()
+                year = 2000 + int(year)
+                
+                validate_daterange(filename,bar_date_min,bar_date_max)
                 
                 cur.copy_expert(
                     "COPY bronze.es_bars (bar_timestamp, open_price, high_price, low_price, close_price, volume, source_file) FROM STDIN WITH(FORMAT csv, DELIMITER ';')",
