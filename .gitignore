@@ -10,6 +10,9 @@ es-pipeline/data/landing/*
 es-pipeline/dbt/project/my_project/target/*
 !es-pipeline/dbt/project/my_project/target/.gitkeep
 
+es-pipeline/dbt/project/my_project/seeds/*
+!es-pipeline/dbt/project/my_project/seeds/.gitkeep
+
 logs/
 !logs/.gitkeep
 
