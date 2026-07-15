@@ -13,11 +13,11 @@ def get_basic_info(df,target):
 
 def aggregate_by_time(df,bucket,target):
     groupby = df.groupby(bucket)[target]
-    df_agg = groupby.agg(['mean','median','std'])
+    df_agg = groupby.agg(['mean','median','std','count'])
     df['q1'] = groupby.transform(lambda x: x.quantile(.25))
     df['q3'] = groupby.transform(lambda x: x.quantile(.75))
     df_agg_filtered = df[(df[target]>df['q1']) & (df[target]<df['q3'])]
-    df_agg_IQR = df_agg_filtered.groupby(bucket)[target].agg(['mean','median','std'])
+    df_agg_IQR = df_agg_filtered.groupby(bucket)[target].agg(['mean','median','std','count'])
     return df_agg, df_agg_IQR
 
 def frequency_hist(df,target,bins,xlabel):
@@ -53,4 +53,3 @@ def visualize_barchart(df, date):
     df_chart = df_chart[['open','high','low','close','volume']]
     df_chart.columns = ['Open','High','Low','Close','Volume']
     mpf.plot(df_chart, type='candle', volume=False)
-
