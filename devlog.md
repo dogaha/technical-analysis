@@ -40,4 +40,20 @@
 ### TO-DO
 - Decide a daily time range to trade
 - Analyze said time range
-- Block the stuff
+
+---
+
+## 2025-07-15
+
+### What I worked on
+- Made Notebooks cleaner, added and implemented functions to and from utils
+onto the notebooks
+- Decided on 8:30 and 9:30 Time Frame
+- Began analysis on Time Range
+
+### TO-DO
+- Implement ATR into the swing detector
+- Finish Analysis on Time range
+  - profits to target
+  - stop loss
+  - volumes to trade
