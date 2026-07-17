@@ -26,8 +26,7 @@ SELECT
     (ARRAY_AGG(open ORDER BY f.bar_time ASC))[1] as open,
     (ARRAY_AGG(close ORDER BY f.bar_time DESC))[1] as close,
     MIN(f.low) as low,
-    SUM(f.volume) as total_volume,
-    ROUND(AVG(f.volume)) as average_volume
+    SUM(f.volume) as volume
 FROM {{ ref('stg_cme_trading_calendar') }} cme
 INNER JOIN filtered f
     ON f.bar_date = cme.bar_date
