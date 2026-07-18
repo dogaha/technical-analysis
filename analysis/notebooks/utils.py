@@ -6,18 +6,18 @@ from dotenv import load_dotenv
 import mplfinance as mpf
 import datetime
 
-def get_basic_info(df,target):print("Median: ",df[target].median())
+def descriptive_analysis(df,target):
+    print(df[target].describe())
+    print("\nMedian: ",df[target].median())
     print("Std Dev: ",df[target].std())
     print("IQR: ", df[target].quantile(0.75) - df[target].quantile(0.25))
-    print("Mode: ",df[target].mode())
-    print(df[target].describe())
 
 def create_time_bucket(df,time_col,time_bucket):
     df['bucket_'+time_bucket+'min'] = df[time_col].apply(
         lambda t: (datetime.datetime.min + datetime.timedelta(minutes=(t.hour*60+t.minute)//int(time_bucket)*int(time_bucket))).time()
     )
 
-def groupby(df,group,target):
+def descriptive_groupby(df,group,target):
     groupby = df.groupby(group)[target]
     df_agg = groupby.agg(['mean','median','std','count'])
     return df_agg
@@ -37,9 +37,9 @@ def box_plot(df,target,ylabel,title):
     plt.title(title)
     plt.show()
 
-def bar_chart(df, target, xlabel, ylabel,angle=45,tickbin=None):
+def bar_chart(df, target, xlabel, ylabel,angle=45,tickbin=None,yerror=None):
     plt.figure(figsize=(10,3))
-    plt.bar(df.index.astype(str), df[target])
+    plt.bar(df.index.astype(str), df[target],yerr=yerror,capsize=4)
     if tickbin:
         plt.gca().xaxis.set_major_locator(ticker.MaxNLocator(nbins=tickbin))
     plt.xlabel(xlabel)
