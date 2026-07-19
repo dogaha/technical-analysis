@@ -49,15 +49,15 @@ def bar_chart(df, target, xlabel, ylabel,angle=45,tickbin=None,yerror=None):
     plt.xticks(rotation=angle)
     plt.show()
 
-def display_market_chart(df, date):
-    if 'total_volume' in df.columns:
-        df = df.rename(columns={'total_volume':'volume'}) 
-    df_chart = df[df['bar_date'] == date].copy()
-    df_chart['datetime'] = pd.to_datetime(df_chart['bar_date'].astype(str) + ' ' + df_chart['bar_time'].astype(str))
+def display_market_chart(df, date,date_col='bar_date',time_col='bar_time'):
+    df_chart = df[df[date_col] == date].copy()
+    df_chart['datetime'] = pd.to_datetime(df_chart[date_col].astype(str) + ' ' + df_chart[time_col].astype(str))
     df_chart = df_chart.set_index('datetime')
     df_chart = df_chart[['open','high','low','close','volume']]
     df_chart.columns = ['Open','High','Low','Close','Volume']
-    mpf.plot(df_chart, type='candle', volume=False)
+
+    open_time = f"{date} 08:30:00"
+    mpf.plot(df_chart, type='candle', volume=True,vlines=dict(vlines=[open_time],linewidths=0.8, alpha=0.5))
 
 def add_winsorized_col(df,target):
     lower = df[target].quantile(0.01)
@@ -71,19 +71,17 @@ def get_swings(df):
     lows = df['low'].to_numpy()
     closes = df['close'].to_numpy()
     opens = df['open'].to_numpy()
-    volumes = df['volume'].to_numpy()
     times = df['bar_time'].to_numpy()
     dates = df['bar_date'].to_numpy()
+    volumes = df['volume'].to_numpy()
     
     swings = []
     start_index = None
     end_index = None
-    start_price = None
     trend = None
+    volume = None
     swing_low = None
     swing_high = None
-    volume = None
-    total_price_movement = None
     upper_price_movememnt= None
     lower_price_movememnt= None
     
@@ -93,12 +91,15 @@ def get_swings(df):
         if i==0 or dates[i] != dates[i-1]:
             start_index = i
             end_index = i
-            start_price = opens[i]
-            trend = 'NONE'
+            if (closes[i] > opens[i]):
+                trend = 'UP'
+            elif (closes[i] < opens[i]):
+                trend = 'DOWN'
+            else:
+                trend = 'NONE'
+            volume = volumes[i]
             swing_low = lows[i]
             swing_high = highs[i]
-            volume = volumes[i]
-            total_price_movement = abs(highs[i] - lows[i])
             upper_price_movememnt = abs(opens[i] - highs[i])
             lower_price_movememnt = abs(opens[i] - lows[i])
             continue
@@ -107,44 +108,49 @@ def get_swings(df):
             cur_trend = 'UP'
         elif (closes[i] < closes[i-1]):
             cur_trend = 'DOWN'
-    
+
         if trend is None or trend == 'NONE':
-            if (closes[i] > start_price):
+            if (closes[i] > closes[start_index]):
                 trend = 'UP'
-            elif (closes[i] < start_price):
+            elif (closes[i] < closes[start_index]):
                 trend = 'DOWN'
+            else:
+                trend = 'NONE'
+            volume += volumes[i]
             end_index = i
             swing_high = max(swing_high, highs[i])
             swing_low = min(swing_low, lows[i])
-            total_price_movement += abs(highs[i] - lows[i])
             upper_price_movememnt += abs(opens[i] - highs[i])
             lower_price_movememnt += abs(opens[i] - lows[i])
             
         elif trend==cur_trend or cur_trend=='NONE':
+            volume += volumes[i]
             end_index = i
             swing_high = max(swing_high, highs[i])
             swing_low = min(swing_low, lows[i])
-            total_price_movement += abs(highs[i] - lows[i])
             upper_price_movememnt += abs(opens[i] - highs[i])
             lower_price_movememnt += abs(opens[i] - lows[i])
         else:
             if trend == 'UP':
-                swings.append([dates[start_index],times[start_index],times[end_index],swing_high,start_price,closes[end_index],swing_low,volume,total_price_movement,upper_price_movememnt,lower_price_movememnt,trend])
+                swings.append([dates[start_index],times[start_index],times[end_index],highs[start_index],opens[start_index],closes[end_index],swing_low,volume,upper_price_movememnt,lower_price_movememnt,trend])
             else:
-                swings.append([dates[start_index],times[start_index],times[end_index],swing_high,start_price,closes[end_index],swing_low,volume,total_price_movement,lower_price_movememnt,upper_price_movememnt,trend])
+                swings.append([dates[start_index],times[start_index],times[end_index],highs[start_index],opens[start_index],closes[end_index],swing_low,volume,lower_price_movememnt,upper_price_movememnt,trend])
             
-            start_index = i-1
+            start_index = i
             end_index = i
-            trend = cur_trend
-            start_price = closes[i-1]
+            volume = volumes[i]
+            if (closes[i] > opens[i]):
+                trend = 'UP'
+            elif (closes[i] < opens[i]):
+                trend = 'DOWN'
+            else:
+                trend = 'NONE'
             swing_high = max(highs[i], highs[i-1])
-            swing_low = min(lows[i], lows[i-1])
-            volume = volumes[i]+volumes[i-1]
-            total_price_movement = abs(highs[i] - lows[i]) + abs(highs[i-1] - lows[i-1])
-            upper_price_movememnt = abs(opens[i] - highs[i]) + abs(opens[i-1] - highs[i-1])
-            lower_price_movememnt = abs(opens[i] - lows[i]) + abs(opens[i-1] - lows[i-1])
+            swing_low = lows[i]
+            upper_price_movememnt = abs(opens[i] - highs[i])
+            lower_price_movememnt = abs(opens[i] - lows[i])
     
-    swing_columns=['date','time_start','time_end','high','open', 'close','low','volume','price_movememnt','following_price_movement','fighting_price_movememnt','trend']
+    swing_columns=['date','time_start','time_end','high', 'open','close','low','volume','following_price_movement','fighting_price_movememnt','trend']
     df_swings = pd.DataFrame(swings,columns=swing_columns)
     create_time_bucket(df_swings,'time_start','30')
     create_time_bucket(df_swings,'time_start','15')
