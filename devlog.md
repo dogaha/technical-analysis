@@ -57,3 +57,63 @@ onto the notebooks
   - profits to target
   - stop loss
   - volumes to trade
+
+## 2025-07-17
+
+### Decisions Made
+- Inefficient to limit the ML model, let it do it's thing
+- No longer use ATR for swing detector
+
+
+### What I worked on
+- Reworked the get swing function in utils
+  - added following price vs fighting price movememnt column. 
+  lets me see ho much it moves with/against the trend
+  - Redid format of code to follow three cases:  Open, Continuation, Reversal
+  - Fixed bugs with pivots
+- Made utils functions even more general
+  - renamed some functions
+  - added optional parameters to some functions
+- Made all Notebooks Compatible with functions
+- Dropped IQR for winsorized for outlier handling
+
+### TO-DO
+- Study up on ML
+- Prepare for what is next
+- write down conclusions drawn from notebooks
+
+---
+
+## 2025-07-18
+
+### Decisons
+- Add Swings to gold layer
+- Study up on ML Concepts
+  - Supervised Learning
+  - Train / Test Splits
+  - Random Forest / Logistical Regression
+  - Evaluation Metrics
+  - Overfitting
+  - Feature Scaling
+- Extend Chart Usage To observe (8:00 - 8:30) and trade [8:30 - 9:30]
+  - Look into other time frames later
+- Gather all the necessary swing data so that the model can base decisions on
+  - Volume
+  - Time of Day
+  - ATR
+  - swing_efficiency
+  - previous_swing(s)
+  - VWAP
+  - Session Data
+    - High
+    - Low
+    - Open
+
+### What I worked on
+- Nothing
+
+
+
+
+
+
