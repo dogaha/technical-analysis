@@ -7,6 +7,9 @@ es-pipeline/data/archive/*
 es-pipeline/data/landing/*
 !es-pipeline/data/landing/.gitkeep
 
+es-pipeline/data/landing/*
+!es-pipeline/data/errors/.gitkeep
+
 es-pipeline/dbt/project/my_project/target/*
 !es-pipeline/dbt/project/my_project/target/.gitkeep
 
@@ -22,3 +25,7 @@ es-pipeline/pipeline.log
 .ipynb_checkpoints
 
 .Trash-0
+
+.env
+
+placeholder
