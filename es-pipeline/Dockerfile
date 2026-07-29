@@ -1,3 +1,4 @@
-FROM apache/airflow:latest
+FROM apache/airflow:3.2.2-python3.11
 USER airflow
-RUN pip install --no-cache-dir pandas_market_calendars
+COPY requirements.txt /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt

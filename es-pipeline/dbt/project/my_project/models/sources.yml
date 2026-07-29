@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: nyse_calendar
+      - name: es_bars
+      - name: loaded_files
