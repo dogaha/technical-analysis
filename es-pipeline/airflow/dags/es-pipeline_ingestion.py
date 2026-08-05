@@ -156,8 +156,8 @@ def load_legs():
 
     for contract, df in df_all.groupby('contract'):
         try:
-            df_swings = utils.get_legs(df)            
-            df_swings.to_sql(
+            df_legs = utils.get_legs(df)            
+            df_legs.to_sql(
                 'es_legs',
                 engine,
                 schema='silver',
@@ -209,9 +209,9 @@ with DAG(
         python_callable=update_silver_bars_load_timestamp
     )
 
-    swing_task = PythonOperator(
+    leg_task = PythonOperator(
         task_id='load_legs',
         python_callable=load_legs
     )
     
-    wait_task >> bronze_task >> dbt_task >> timestamp_task >> swing_task
+    wait_task >> bronze_task >> dbt_task >> timestamp_task >> leg_task
