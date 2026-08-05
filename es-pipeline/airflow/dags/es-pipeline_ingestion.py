@@ -135,7 +135,7 @@ def update_silver_bars_load_timestamp():
         )
         conn.commit()
 
-def load_swings():
+def load_legs():
     load_dotenv()
     logger = utils.get_logger()
     # f"postgres+psycopg2://{[user]}:{[pass]}@{[host}:{[port]}/{[dbname]}"
@@ -148,7 +148,7 @@ def load_swings():
         """
         SELECT b.* FROM silver.es_bars b
         INNER JOIN bronze.loaded_files f ON b.contract = f.source_file
-        WHERE f.loaded_silver_swings_at IS NULL
+        WHERE f.loaded_silver_legs_at IS NULL
         ORDER BY contract, bar_date, bar_time
         """,
         engine
@@ -156,9 +156,9 @@ def load_swings():
 
     for contract, df in df_all.groupby('contract'):
         try:
-            df_swings = utils.process(df)            
+            df_swings = utils.get_legs(df)            
             df_swings.to_sql(
-                'es_swings',
+                'es_legs',
                 engine,
                 schema='silver',
                 if_exists='append',
@@ -169,7 +169,7 @@ def load_swings():
                 conn.execute(
                     text("""
                         UPDATE bronze.loaded_files
-                        SET loaded_silver_swings_at = :timestamp
+                        SET loaded_silver_legs_at = :timestamp
                         WHERE source_file = :contract
                     """),
                     {"timestamp": pd.Timestamp.now(), "contract":contract}
@@ -210,8 +210,8 @@ with DAG(
     )
 
     swing_task = PythonOperator(
-        task_id='load_swings',
-        python_callable=load_swings
+        task_id='load_legs',
+        python_callable=load_legs
     )
     
     wait_task >> bronze_task >> dbt_task >> timestamp_task >> swing_task
