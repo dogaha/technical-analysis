@@ -1,7 +1,8 @@
 {{
     config(
         pre_hook="SET timezone = 'UTC';",
-        materialized = 'table',
+        materialized='incremental',
+        unique_key=['contract', 'bar_date', 'bar_time'],
         alias='es_bars'
     )
 }}
@@ -32,7 +33,7 @@ FROM timezone as b
 INNER JOIN bronze.loaded_files as f
     ON b.contract = f.source_file
     AND b.bar_date BETWEEN f.start_date and f.end_date
+    AND f.loaded_silver_bars_at IS NULL
 INNER JOIN bronze.nyse_calendar AS c
     ON b.bar_date = c.date 
     AND c.is_half_day IS FALSE
-WHERE f.loaded_silver_bars_at IS NULL
