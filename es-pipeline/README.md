@@ -1,5 +1,4 @@
 # Futures Market Data Pipeline and Warehoue
-This project builds an automated, end-to-end data pipeline to process daily e-commerce transactions and regional inventory logs. The goal is to eliminate manual reporting silos and provide a unified, highly available data model that powers an executive dashboard for tracking daily revenue, identifying low-stock items, and analyzing regional sales trends.
 
 ## 📖 Overview
 This project builds a data pipeline to ingest and process Ninja Trader's 
@@ -82,7 +81,8 @@ See [archived_notebooks](../analysis/archived_notebooks)
 ### 01_Leg_Anlaysis.ipynb
 Performs Analysis on gold.es_legs, with the goal of validating the claim that
 4 point moves are a viable target. Explores magnitude, time, durration, drawdown,
-volume, ect. See [01_leg_analysis.ipynb](../analysis/notebooks/01_leg_analysis.ipynb)
+volume, and occurance. 
+See [01_leg_analysis.ipynb](../analysis/notebooks/01_leg_analysis.ipynb)
 
 ### chart_visualization.ipynb
 Visualize charts for logic testing of legs function and exploration.
