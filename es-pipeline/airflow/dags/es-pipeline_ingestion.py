@@ -160,7 +160,7 @@ def load_legs():
             df_legs.to_sql(
                 'es_legs',
                 engine,
-                schema='silver',
+                schema='gold',
                 if_exists='append',
                 index=False
             )
@@ -169,7 +169,7 @@ def load_legs():
                 conn.execute(
                     text("""
                         UPDATE bronze.loaded_files
-                        SET loaded_silver_legs_at = :timestamp
+                        SET loaded_gold_legs_at = :timestamp
                         WHERE source_file = :contract
                     """),
                     {"timestamp": pd.Timestamp.now(), "contract":contract}

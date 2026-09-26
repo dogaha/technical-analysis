@@ -16,7 +16,7 @@ CREATE TABLE bronze.loaded_files (
     end_date     DATE,
     loaded_bronze_bars_at TIMESTAMP DEFAULT NULL,
     loaded_silver_bars_at TIMESTAMP DEFAULT NULL,
-    loaded_silver_legs_at TIMESTAMP DEFAULT NULL,
+    loaded_gold_legs_at TIMESTAMP DEFAULT NULL,
     loaded_at    TIMESTAMP NOT NULL DEFAULT now()
 );
 
